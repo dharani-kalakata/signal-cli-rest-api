@@ -6,12 +6,15 @@ if ! id "signal-api" >/dev/null 2>&1; then
     useradd -m -u 1000 signal-api
 fi
 
+# Modify the user ID only if the user exists
+if id "signal-api" >/dev/null 2>&1; then
+    usermod -u 1000 signal-api
+fi
+
 # Proceed with the rest of the script
 if [ -z "$SIGNAL_CLI_HOME" ]; then
     SIGNAL_CLI_HOME=/home/.local/share/signal-cli
 fi
-
-usermod -u 1000 signal-api
 
 # Add any other necessary commands here
 if [ -n "$SIGNAL_CLI_HOME" ]; then
@@ -26,4 +29,4 @@ fi
 export HOST_IP=$(hostname -I | awk '{print $1}')
 
 # Start API as signal-api user
-exec setpriv --reuid=${SIGNAL_CLI_UID} --regid=${SIGNAL_CLI_GID} --init-groups --inh-caps=$caps signal-cli-rest-api -signal-cli-config=${SIGNAL_CLI_CONFIG_DIR}
+exec setpriv --reuid=1000 --regid=1000 --init-groups --inh-caps=$caps signal-cli-rest-api -signal-cli-config=${SIGNAL_CLI_CONFIG_DIR}
